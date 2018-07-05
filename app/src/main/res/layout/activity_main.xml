@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.norfahly.testred5.MainActivity">
+
+    <SurfaceView
+        android:id="@+id/surface_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center" />
+
+    <FrameLayout
+        android:id="@+id/cameraSwitchFL"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:padding="16dp"
+        android:visibility="visible">
+
+        <ImageButton
+            android:id="@+id/camera_switch"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_live_buttons"
+            android:padding="5dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_live_switch_camera" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/exitFL"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:padding="16dp"
+        android:visibility="visible">
+
+        <ImageButton
+            android:id="@+id/exit"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/bg_live_buttons"
+            android:padding="7dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_live_exit" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/startLiveTV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:gravity="center"
+        android:shadowColor="#000"
+        android:layout_alignParentBottom="true"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:padding="10dp"
+        android:shadowRadius="2"
+        android:text="Start Live"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="18sp" />
+
+</RelativeLayout>
