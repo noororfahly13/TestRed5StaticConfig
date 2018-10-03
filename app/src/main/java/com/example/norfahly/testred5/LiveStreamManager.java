@@ -22,6 +22,7 @@ import com.red5pro.streaming.source.R5Microphone;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -43,6 +44,7 @@ public class LiveStreamManager implements R5ConnectionListener, SurfaceHolder.Ca
     private static final int streamCameraWidth = 720;//BuildConfig.is_dev ? 360 : 720;
     private static final int streamCameraHeight = 1280;// BuildConfig.is_dev ? 640 : 1280;
     public static final int STREAMER_MAX_RECONNECT_TRIES = 4;
+
 
     boolean isPublishing = false;
     boolean isCameraPaused = false;
@@ -151,6 +153,12 @@ public class LiveStreamManager implements R5ConnectionListener, SurfaceHolder.Ca
                 try {
                     cam = Camera.open(camIdx);
                     camOrientation = cameraInfo.orientation;
+                    Camera.Parameters parameters = cam.getParameters();
+                    List<String> list = parameters.getSupportedFocusModes();
+                    if (list.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+                        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+                        cam.setParameters(parameters);
+                    }
                     applyDeviceRotation();
                     break;
                 } catch (RuntimeException e) {
@@ -206,6 +214,12 @@ public class LiveStreamManager implements R5ConnectionListener, SurfaceHolder.Ca
                 try {
                     cam = Camera.open(camIdx);
                     camOrientation = cameraInfo.orientation;
+                    Camera.Parameters parameters = cam.getParameters();
+                    List<String> list = parameters.getSupportedFocusModes();
+                    if (list.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+                        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+                        cam.setParameters(parameters);
+                    }
                     applyInverseDeviceRotation();
                     break;
                 } catch (RuntimeException e) {

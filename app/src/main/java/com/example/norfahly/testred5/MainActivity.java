@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); //keep screen on while watching a stream
         float ratio = ((float) getScreenMetrics().heightPixels) / ((float) getScreenMetrics().widthPixels);
         MainActivityPermissionsDispatcher.initializeLiveStreamWithCheck(MainActivity.this);
