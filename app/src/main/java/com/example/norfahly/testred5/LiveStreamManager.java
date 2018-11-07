@@ -5,8 +5,6 @@ import android.hardware.Camera;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.WindowManager;
 
 import com.red5pro.streaming.R5Connection;
@@ -18,8 +16,8 @@ import com.red5pro.streaming.event.R5ConnectionListener;
 import com.red5pro.streaming.source.R5AdaptiveBitrateController;
 import com.red5pro.streaming.source.R5Camera;
 import com.red5pro.streaming.source.R5Microphone;
+import com.red5pro.streaming.view.R5VideoView;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -29,7 +27,7 @@ import java.util.Locale;
  * Created by Noor Orfahly on 7/4/2018.
  */
 
-public class LiveStreamManager implements R5ConnectionListener, SurfaceHolder.Callback {
+public class LiveStreamManager implements R5ConnectionListener{
 
     public static LiveStreamManager instance;
 
@@ -66,7 +64,7 @@ public class LiveStreamManager implements R5ConnectionListener, SurfaceHolder.Ca
 
     protected R5Stream stream;
     String mStreamName;
-    SurfaceView surface;
+    R5VideoView surface;
     Red5StreamEventsListener activityConnectionListener;
     boolean mOrientationDirty;
     protected int mOrigCamOrientation = 0;
@@ -74,6 +72,7 @@ public class LiveStreamManager implements R5ConnectionListener, SurfaceHolder.Ca
     protected int camDisplayOrientation;
     float ratio = 1.0f;
 
+    public final int SCALE_MODE = 1;
 
     public boolean isPublishing() {
         return isPublishing;
@@ -94,7 +93,7 @@ public class LiveStreamManager implements R5ConnectionListener, SurfaceHolder.Ca
         return instance;
     }
 
-    public void initialize(SurfaceView surface, AppCompatActivity publishActivity, Red5StreamEventsListener activityConnectionListener, float ratio) {
+    public void initialize(R5VideoView surface, AppCompatActivity publishActivity, Red5StreamEventsListener activityConnectionListener, float ratio) {
         this.activityConnectionListener = activityConnectionListener;
         initialConfiguration = new R5Configuration(R5StreamProtocol.RTSP, HOST, PORT, CONTEXT_NAME, BUFFER_TIME);
         initialConfiguration.setLicenseKey(LICENSE_KEY);
@@ -105,7 +104,6 @@ public class LiveStreamManager implements R5ConnectionListener, SurfaceHolder.Ca
         preview();
         // initialize stream with default configuration
         stream = new R5Stream(new R5Connection(initialConfiguration));
-        stream.setView(surface);
         R5Camera r5Camera = new R5Camera(camera, (int) (streamCameraHeight * ratio), streamCameraHeight);
         //R5Camera r5Camera = new R5Camera(camera, 640, 360);
         stream.audioController.sampleRate = SAMPLE_RATE;
@@ -120,25 +118,19 @@ public class LiveStreamManager implements R5ConnectionListener, SurfaceHolder.Ca
         stream.attachMic(r5Microphone);
         stream.restrainVideo(false);
         stream.restrainAudio(false);
-        stream.setScaleMode(2);
+        stream.setScaleMode(SCALE_MODE);
         stream.setListener(this);
 
         shouldRecordLocally = false;
+
+        surface.attachStream(stream);
+        changeCamera(false);
+
     }
 
-
     public void preview() {
-        //camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
         camera = openFrontFacingCamera();
         camera.setDisplayOrientation((camOrientation + 180) % 360);
-        surface.getHolder().addCallback(this);
-        if (surface.getHolder() != null) {
-            try {
-                camera.setPreviewDisplay(surface.getHolder());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         camera.startPreview();
     }
 
@@ -292,7 +284,7 @@ public class LiveStreamManager implements R5ConnectionListener, SurfaceHolder.Ca
                 camera.startPreview();
             }
         }
-        stream.setScaleMode(2);
+        stream.setScaleMode(SCALE_MODE);
     }
 
     public void startPublishing(String host, int port, String contextName, String streamName) {
@@ -303,10 +295,10 @@ public class LiveStreamManager implements R5ConnectionListener, SurfaceHolder.Ca
         publishConfiguration.setBundleID(publishActivity.getPackageName());
         stream.connection = new R5Connection(publishConfiguration);
         stream.connection.stream = stream;
-        stream.setView(surface);
-        stream.setScaleMode(2);
+        stream.setScaleMode(SCALE_MODE);
         stream.restrainAudio(false);
         stream.restrainVideo(false);
+        surface.attachStream(stream);
         mStreamName = streamName;
         stream.publish(streamName, R5Stream.RecordType.Append);
         isPublishing = true;
@@ -325,7 +317,6 @@ public class LiveStreamManager implements R5ConnectionListener, SurfaceHolder.Ca
             return;
         stream = new R5Stream(new R5Connection(publishConfiguration));
         stream.setLogLevel(R5Stream.LOG_LEVEL_ERROR);
-        stream.setView(surface);
 //        if (camera == null)
         if (currentCamMode == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             camera = openFrontFacingCamera();
@@ -347,13 +338,14 @@ public class LiveStreamManager implements R5ConnectionListener, SurfaceHolder.Ca
         stream.attachMic(r5Microphone);
         stream.restrainVideo(false);
         stream.restrainAudio(false);
-        stream.setScaleMode(2);
+        stream.setScaleMode(SCALE_MODE);
         stream.setListener(this);
         publishConfiguration.setLicenseKey(LICENSE_KEY);
         publishConfiguration.setBundleID(publishActivity.getPackageName());
         stream.connection = new R5Connection(publishConfiguration);
         stream.connection.stream = stream;
         stream.publish(mStreamName, R5Stream.RecordType.Append);
+        surface.attachStream(stream);
         isPublishing = true;
         camera.startPreview();
         if (shouldRecordLocally) {
@@ -395,32 +387,6 @@ public class LiveStreamManager implements R5ConnectionListener, SurfaceHolder.Ca
             }
         }
         isPublishing = false;
-    }
-
-    @Override
-    public void surfaceCreated(SurfaceHolder surfaceHolder) {
-        try {
-            if (camera != null) {
-                camera.setPreviewDisplay(surfaceHolder);
-                camera.startPreview();
-            } else {
-                camera = openFrontFacingCamera();
-                camera.setPreviewDisplay(surfaceHolder);
-                camera.startPreview();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
-
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-
     }
 
     public interface PublishListener {
@@ -492,7 +458,7 @@ public class LiveStreamManager implements R5ConnectionListener, SurfaceHolder.Ca
         r5Camera.setOrientation(camOrientation);
         mOrientationDirty = false;
         //call for a redraw to fix the aspect
-        stream.setScaleMode(2);
+        stream.setScaleMode(SCALE_MODE);
     }
 
     public void updateOrientationParams(WindowManager windowManager) {

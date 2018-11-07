@@ -17,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.red5pro.streaming.view.R5VideoView;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -29,7 +31,7 @@ import permissions.dispatcher.RuntimePermissions;
 
 public class MainActivity extends AppCompatActivity {
 
-    @BindView(R.id.surface_view) SurfaceView mSurfaceView;
+    @BindView(R.id.surface_view) R5VideoView mSurfaceView;
     @BindView(R.id.camera_switch) ImageView cameraSwitch;
     @BindView(R.id.cameraSwitchFL) FrameLayout cameraSwitchFL;
     @BindView(R.id.exit) ImageView exitCross;
